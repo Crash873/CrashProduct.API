@@ -21,16 +21,35 @@ namespace CrashProduto.API.Controllers
             _context = context;
         }
 
-        // GET: api/Products
-        [HttpGet]
+        /// <summary>
+        /// GetProducts returns products
+        /// </summary>        
+        /// <returns>List of Products</returns>        
+        [HttpGet]        
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             return await _context.Products.ToListAsync();
         }
 
-        // GET: api/Products/5
+
+        /// <summary>
+        /// GetProductsWithPagination returns products for specific page.
+        /// </summary>        
+        /// <returns>List of Products</returns>        
+        /// <param name="page">Is current Page.</param>
+        [HttpGet("pagination")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductsWithPagination(string page)
+        {
+            string _page = page;
+            return await _context.Products.ToListAsync();
+        }
+
+        /// <summary>
+        /// GetProduct with specific ID
+        /// </summary>
+        /// <returns>Return specifc product</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(long id)
+        public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
 
@@ -42,10 +61,31 @@ namespace CrashProduto.API.Controllers
             return product;
         }
 
-        // PUT: api/Products/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
+        /// <summary>
+        /// Update specific product
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /Products/id
+        ///     {
+        ///        "id": 1,
+        ///        "name": "Item1",
+        ///        "description": "Teste"
+        ///        "active": true
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="id">Product ID</param>
+        /// <param name="product">Product Object</param>
+        /// <response code="404">IF product not exists</response>
+        /// <response code="400">Format of product it's incorrect</response>  
+        /// <response code="204">Product updated</response>  
+        /// <returns></returns>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> PutProduct(long id, Product product)
         {
             if (id != product.Id)
@@ -104,7 +144,15 @@ namespace CrashProduto.API.Controllers
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
 
-        // DELETE: api/Products/5
+        /// <summary>
+        /// DeleteProduct 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <response code="200">Returns removed product</response>
+        /// <response code="404">If product not exists</response>  
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id}")]
         public async Task<ActionResult<Product>> DeleteProduct(long id)
         {
